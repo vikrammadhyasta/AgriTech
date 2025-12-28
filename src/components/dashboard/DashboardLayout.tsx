@@ -11,21 +11,18 @@ import {
   BarChart3,
   Settings,
   LogOut,
+  Bell,
   User,
   ClipboardCheck,
   Truck,
   Store,
   TrendingUp,
-  Users,
-  Shield,
-  FileText,
 } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
-import NotificationBell from "@/components/notifications/NotificationBell";
+import { toast } from "sonner";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
-  role: "farmer" | "distributor" | "retailer" | "customer" | "admin";
+  role: "farmer" | "distributor" | "retailer" | "customer";
 }
 
 const roleMenus = {
@@ -54,14 +51,7 @@ const roleMenus = {
     { name: "Dashboard", path: "", icon: Home },
     { name: "Shop", path: "/shop", icon: Store },
     { name: "My Orders", path: "/orders", icon: ShoppingCart },
-    { name: "Order History", path: "/history", icon: FileText },
-    { name: "Settings", path: "/settings", icon: Settings },
-  ],
-  admin: [
-    { name: "Dashboard", path: "", icon: Home },
-    { name: "User Management", path: "/users", icon: Users },
-    { name: "Products", path: "/products", icon: Package },
-    { name: "Orders", path: "/orders", icon: ShoppingCart },
+    { name: "Wishlist", path: "/wishlist", icon: Package },
     { name: "Settings", path: "/settings", icon: Settings },
   ],
 };
@@ -71,19 +61,17 @@ const roleColors = {
   distributor: "bg-secondary",
   retailer: "bg-primary",
   customer: "bg-leaf",
-  admin: "bg-destructive",
 };
 
 const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, signOut } = useAuth();
   const menu = roleMenus[role];
   const basePath = `/dashboard/${role}`;
 
-  const handleLogout = async () => {
-    await signOut();
+  const handleLogout = () => {
+    toast.success("Logged out successfully!");
     navigate("/");
   };
 
@@ -98,7 +86,10 @@ const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
           <span className="font-display font-bold text-foreground">AgriTech</span>
         </Link>
         <div className="flex items-center gap-2">
-          <NotificationBell />
+          <Button variant="ghost" size="icon" className="relative">
+            <Bell className="w-5 h-5" />
+            <span className="absolute top-1 right-1 w-2 h-2 bg-destructive rounded-full" />
+          </Button>
           <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2">
             {sidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
@@ -152,16 +143,10 @@ const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
           <div className="p-4 border-t border-border">
             <div className="flex items-center gap-3 px-4 py-3 bg-muted rounded-xl mb-3">
               <div className={`w-10 h-10 rounded-full ${roleColors[role]} flex items-center justify-center`}>
-                {role === 'admin' ? (
-                  <Shield className="w-5 h-5 text-primary-foreground" />
-                ) : (
-                  <User className="w-5 h-5 text-primary-foreground" />
-                )}
+                <User className="w-5 h-5 text-primary-foreground" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-foreground truncate">
-                  {user?.email?.split('@')[0] || 'User'}
-                </p>
+                <p className="text-sm font-medium text-foreground truncate">John Doe</p>
                 <p className="text-xs text-muted-foreground capitalize">{role}</p>
               </div>
             </div>
@@ -193,18 +178,15 @@ const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
             <h1 className="text-xl font-display font-bold text-foreground capitalize">
               {role} Dashboard
             </h1>
-            <p className="text-sm text-muted-foreground">
-              Welcome back, {user?.email?.split('@')[0] || 'User'}!
-            </p>
+            <p className="text-sm text-muted-foreground">Welcome back, John!</p>
           </div>
           <div className="flex items-center gap-4">
-            <NotificationBell />
+            <Button variant="ghost" size="icon" className="relative">
+              <Bell className="w-5 h-5" />
+              <span className="absolute top-1 right-1 w-2 h-2 bg-destructive rounded-full" />
+            </Button>
             <div className={`w-10 h-10 rounded-full ${roleColors[role]} flex items-center justify-center`}>
-              {role === 'admin' ? (
-                <Shield className="w-5 h-5 text-primary-foreground" />
-              ) : (
-                <User className="w-5 h-5 text-primary-foreground" />
-              )}
+              <User className="w-5 h-5 text-primary-foreground" />
             </div>
           </div>
         </header>

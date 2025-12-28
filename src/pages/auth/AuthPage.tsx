@@ -1,18 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Leaf, ArrowLeft, Eye, EyeOff, Users, ShoppingBag, Truck, Store, Loader2 } from "lucide-react";
+import { Leaf, ArrowLeft, Eye, EyeOff, Users, ShoppingBag, Truck, Store } from "lucide-react";
 import { toast } from "sonner";
-import { useAuth } from "@/contexts/AuthContext";
-import { z } from "zod";
-import type { Database } from "@/integrations/supabase/types";
-
-type AppRole = Database['public']['Enums']['app_role'];
-
-const emailSchema = z.string().email('Please enter a valid email address');
-const passwordSchema = z.string().min(6, 'Password must be at least 6 characters');
 
 const roleConfig = {
   customer: {
@@ -50,11 +42,8 @@ type RoleType = keyof typeof roleConfig;
 const AuthPage = () => {
   const { role = "customer" } = useParams<{ role: string }>();
   const navigate = useNavigate();
-  const { signIn, signUp, user, userRole, loading: authLoading } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState<{ email?: string; password?: string; name?: string }>({});
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -65,87 +54,15 @@ const AuthPage = () => {
   const currentRole = roleConfig[role as RoleType] || roleConfig.customer;
   const IconComponent = currentRole.icon;
 
-  // Redirect if already logged in with an approved role
-  useEffect(() => {
-    if (!authLoading && user && userRole) {
-      navigate(`/dashboard/${userRole}`);
-    }
-  }, [user, userRole, authLoading, navigate]);
-
-  const validateForm = () => {
-    const newErrors: typeof errors = {};
-
-    const emailResult = emailSchema.safeParse(formData.email);
-    if (!emailResult.success) {
-      newErrors.email = emailResult.error.errors[0].message;
-    }
-
-    const passwordResult = passwordSchema.safeParse(formData.password);
-    if (!passwordResult.success) {
-      newErrors.password = passwordResult.error.errors[0].message;
-    }
-
-    if (!isLogin && !formData.name.trim()) {
-      newErrors.name = 'Please enter your name';
-    }
-
-    if (!isLogin && formData.password !== formData.confirmPassword) {
-      newErrors.password = 'Passwords do not match';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!validateForm()) return;
-    
-    setLoading(true);
-
-    try {
-      if (isLogin) {
-        const { error } = await signIn(formData.email, formData.password);
-        if (error) {
-          if (error.message.includes('Invalid login')) {
-            toast.error('Invalid email or password');
-          } else {
-            toast.error(error.message);
-          }
-          return;
-        }
-        toast.success('Logged in successfully!');
-      } else {
-        const { error } = await signUp(formData.email, formData.password, formData.name, role as AppRole);
-        if (error) {
-          if (error.message.includes('already registered')) {
-            toast.error('This email is already registered. Please sign in.');
-          } else {
-            toast.error(error.message);
-          }
-          return;
-        }
-        
-        if (role === 'customer') {
-          toast.success('Account created successfully!');
-          navigate('/dashboard/customer');
-        } else {
-          toast.success('Account created! Your role request is pending admin approval. You will be notified once approved.');
-        }
-      }
-    } finally {
-      setLoading(false);
+    if (!isLogin && formData.password !== formData.confirmPassword) {
+      toast.error("Passwords do not match!");
+      return;
     }
+    toast.success(isLogin ? "Logged in successfully!" : "Account created successfully!");
+    navigate(`/dashboard/${role}`);
   };
-
-  if (authLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-background flex">
@@ -222,15 +139,10 @@ const AuthPage = () => {
                     <Input
                       placeholder="John Doe"
                       value={formData.name}
-                      onChange={(e) => {
-                        setFormData({ ...formData, name: e.target.value });
-                        setErrors({ ...errors, name: undefined });
-                      }}
-                      className={`h-12 ${errors.name ? 'border-destructive' : ''}`}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      required
+                      className="h-12"
                     />
-                    {errors.name && (
-                      <p className="text-sm text-destructive">{errors.name}</p>
-                    )}
                   </div>
                 )}
                 <div className="space-y-2">
@@ -239,15 +151,10 @@ const AuthPage = () => {
                     type="email"
                     placeholder="you@example.com"
                     value={formData.email}
-                    onChange={(e) => {
-                      setFormData({ ...formData, email: e.target.value });
-                      setErrors({ ...errors, email: undefined });
-                    }}
-                    className={`h-12 ${errors.email ? 'border-destructive' : ''}`}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    required
+                    className="h-12"
                   />
-                  {errors.email && (
-                    <p className="text-sm text-destructive">{errors.email}</p>
-                  )}
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-foreground">Password</label>
@@ -256,11 +163,9 @@ const AuthPage = () => {
                       type={showPassword ? "text" : "password"}
                       placeholder="••••••••"
                       value={formData.password}
-                      onChange={(e) => {
-                        setFormData({ ...formData, password: e.target.value });
-                        setErrors({ ...errors, password: undefined });
-                      }}
-                      className={`h-12 pr-12 ${errors.password ? 'border-destructive' : ''}`}
+                      onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                      required
+                      className="h-12 pr-12"
                     />
                     <button
                       type="button"
@@ -270,9 +175,6 @@ const AuthPage = () => {
                       {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
                   </div>
-                  {errors.password && (
-                    <p className="text-sm text-destructive">{errors.password}</p>
-                  )}
                 </div>
                 {!isLogin && (
                   <div className="space-y-2">
@@ -282,19 +184,13 @@ const AuthPage = () => {
                       placeholder="••••••••"
                       value={formData.confirmPassword}
                       onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                      required
                       className="h-12"
                     />
                   </div>
                 )}
-                <Button variant="hero" size="lg" className="w-full mt-6" disabled={loading}>
-                  {loading ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      {isLogin ? "Signing In..." : "Creating Account..."}
-                    </>
-                  ) : (
-                    isLogin ? "Sign In" : "Create Account"
-                  )}
+                <Button variant="hero" size="lg" className="w-full mt-6">
+                  {isLogin ? "Sign In" : "Create Account"}
                 </Button>
               </form>
 
