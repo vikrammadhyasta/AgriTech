@@ -44,7 +44,7 @@ const FeaturedProducts = () => {
       name: "Organic Potatoes",
       price: 25,
       unit: "kg",
-      image: "https://images.unsplash.com/photo-1518977676601-b53f82ade035?w=400&h=400&fit=crop",
+      image: "https://images.unsplash.com/photo-1596910547473-dc940f71e7ec?w=400&h=400&fit=crop",
       rating: 4.5,
       farmer: "Earth Roots Farm",
       quality: "Good",
