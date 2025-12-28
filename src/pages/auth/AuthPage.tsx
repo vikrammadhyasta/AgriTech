@@ -65,11 +65,10 @@ const AuthPage = () => {
   const currentRole = roleConfig[role as RoleType] || roleConfig.customer;
   const IconComponent = currentRole.icon;
 
-  // Redirect if already logged in
+  // Redirect if already logged in with an approved role
   useEffect(() => {
-    if (!authLoading && user) {
-      const redirectRole = userRole || 'customer';
-      navigate(`/dashboard/${redirectRole}`);
+    if (!authLoading && user && userRole) {
+      navigate(`/dashboard/${userRole}`);
     }
   }, [user, userRole, authLoading, navigate]);
 
@@ -130,8 +129,9 @@ const AuthPage = () => {
         
         if (role === 'customer') {
           toast.success('Account created successfully!');
+          navigate('/dashboard/customer');
         } else {
-          toast.success('Account created! Your role request is pending approval.');
+          toast.success('Account created! Your role request is pending admin approval. You will be notified once approved.');
         }
       }
     } finally {
