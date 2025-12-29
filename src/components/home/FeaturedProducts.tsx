@@ -4,6 +4,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Star, ShoppingCart, ArrowRight } from "lucide-react";
 
+const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&h=400&fit=crop";
+
 const FeaturedProducts = () => {
   const products = [
     {
@@ -44,7 +46,7 @@ const FeaturedProducts = () => {
       name: "Organic Potatoes",
       price: 25,
       unit: "kg",
-      image: "https://images.unsplash.com/photo-1518977676601-b53f82ber?w=400&h=400&fit=crop",
+      image: "https://images.unsplash.com/photo-1518977676601-b53f82abe6a2?w=400&h=400&fit=crop",
       rating: 4.5,
       farmer: "Earth Roots Farm",
       quality: "Good",
@@ -105,6 +107,10 @@ const FeaturedProducts = () => {
                 <img
                   src={product.image}
                   alt={product.name}
+                  loading="lazy"
+                  onError={(e) => {
+                    e.currentTarget.src = FALLBACK_IMAGE;
+                  }}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
                 <div className="absolute top-3 left-3 flex gap-2">
