@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Star, ShoppingCart, ArrowRight } from "lucide-react";
 
-const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&h=400&fit=crop";
+const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=400&h=400";
 
 const FeaturedProducts = () => {
   const products = [
@@ -13,7 +13,7 @@ const FeaturedProducts = () => {
       name: "Fresh Organic Tomatoes",
       price: 45,
       unit: "kg",
-      image: "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=400&h=400&fit=crop",
+      image: "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=400&h=400",
       rating: 4.8,
       farmer: "Green Valley Farm",
       quality: "Premium",
@@ -24,7 +24,7 @@ const FeaturedProducts = () => {
       name: "Garden Fresh Spinach",
       price: 35,
       unit: "bunch",
-      image: "https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=400&h=400&fit=crop",
+      image: "https://images.unsplash.com/photo-1576045057995-568f588f82fb?auto=format&fit=crop&w=400&h=400",
       rating: 4.6,
       farmer: "Sunrise Organics",
       quality: "Good",
@@ -35,7 +35,7 @@ const FeaturedProducts = () => {
       name: "Fresh Carrots",
       price: 30,
       unit: "kg",
-      image: "https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=400&h=400&fit=crop",
+      image: "https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?auto=format&fit=crop&w=400&h=400",
       rating: 4.7,
       farmer: "Hill View Farm",
       quality: "Premium",
@@ -46,7 +46,7 @@ const FeaturedProducts = () => {
       name: "Organic Potatoes",
       price: 25,
       unit: "kg",
-      image: "https://images.unsplash.com/photo-1518977676601-b53f82abe6a2?w=400&h=400&fit=crop",
+      image: "https://images.unsplash.com/photo-1518977676601-b53f82abe6a2?auto=format&fit=crop&w=400&h=400",
       rating: 4.5,
       farmer: "Earth Roots Farm",
       quality: "Good",
@@ -57,7 +57,7 @@ const FeaturedProducts = () => {
       name: "Fresh Bell Peppers",
       price: 60,
       unit: "kg",
-      image: "https://images.unsplash.com/photo-1563565375-f3fdfdbefa83?w=400&h=400&fit=crop",
+      image: "https://images.unsplash.com/photo-1563565375-f3fdfdbefa83?auto=format&fit=crop&w=400&h=400",
       rating: 4.9,
       farmer: "Color Fields",
       quality: "Premium",
@@ -68,7 +68,7 @@ const FeaturedProducts = () => {
       name: "Organic Onions",
       price: 28,
       unit: "kg",
-      image: "https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?w=400&h=400&fit=crop",
+      image: "https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?auto=format&fit=crop&w=400&h=400",
       rating: 4.4,
       farmer: "Valley Greens",
       quality: "Good",
