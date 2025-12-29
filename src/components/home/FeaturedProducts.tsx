@@ -13,7 +13,7 @@ const FeaturedProducts = () => {
       name: "Fresh Organic Tomatoes",
       price: 45,
       unit: "kg",
-      image: "https://images.unsplash.com/photo-1546470427-227c7369676d?w=400&h=400&fit=crop",
+      image: "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=400&h=400&fit=crop",
       rating: 4.8,
       farmer: "Green Valley Farm",
       quality: "Premium",
