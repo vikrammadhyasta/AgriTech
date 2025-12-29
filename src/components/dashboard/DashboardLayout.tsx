@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,19 +17,12 @@ import {
   Truck,
   Store,
   TrendingUp,
-  Loader2,
 } from "lucide-react";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
   role: "farmer" | "distributor" | "retailer" | "customer";
-}
-
-interface UserProfile {
-  full_name: string | null;
-  email: string;
 }
 
 const roleMenus = {
@@ -72,50 +65,15 @@ const roleColors = {
 
 const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [loadingProfile, setLoadingProfile] = useState(true);
   const location = useLocation();
   const navigate = useNavigate();
   const menu = roleMenus[role];
   const basePath = `/dashboard/${role}`;
 
-  useEffect(() => {
-    const fetchUserProfile = async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          const { data: profile } = await supabase
-            .from("profiles")
-            .select("full_name, email")
-            .eq("id", user.id)
-            .single();
-
-          if (profile) {
-            setUserProfile(profile);
-          }
-        }
-      } catch (error) {
-        console.error("Error fetching user profile:", error);
-      } finally {
-        setLoadingProfile(false);
-      }
-    };
-
-    fetchUserProfile();
-  }, []);
-
-  const handleLogout = async () => {
-    try {
-      await supabase.auth.signOut();
-      toast.success("Logged out successfully!");
-      navigate("/");
-    } catch (error) {
-      console.error("Logout error:", error);
-      toast.error("Error logging out. Please try again.");
-    }
+  const handleLogout = () => {
+    toast.success("Logged out successfully!");
+    navigate("/");
   };
-
-  const displayName = userProfile?.full_name || userProfile?.email?.split("@")[0] || "User";
 
   return (
     <div className="min-h-screen bg-background">
@@ -188,17 +146,8 @@ const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
                 <User className="w-5 h-5 text-primary-foreground" />
               </div>
               <div className="flex-1 min-w-0">
-                {loadingProfile ? (
-                  <div className="flex items-center gap-2">
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    <span className="text-sm text-muted-foreground">Loading...</span>
-                  </div>
-                ) : (
-                  <>
-                    <p className="text-sm font-medium text-foreground truncate">{displayName}</p>
-                    <p className="text-xs text-muted-foreground capitalize">{role}</p>
-                  </>
-                )}
+                <p className="text-sm font-medium text-foreground truncate">John Doe</p>
+                <p className="text-xs text-muted-foreground capitalize">{role}</p>
               </div>
             </div>
             <Button
@@ -229,9 +178,7 @@ const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
             <h1 className="text-xl font-display font-bold text-foreground capitalize">
               {role} Dashboard
             </h1>
-            <p className="text-sm text-muted-foreground">
-              Welcome back{loadingProfile ? "" : `, ${displayName}`}!
-            </p>
+            <p className="text-sm text-muted-foreground">Welcome back, John!</p>
           </div>
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="icon" className="relative">

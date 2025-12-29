@@ -1,12 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Leaf, ArrowLeft, Eye, EyeOff, Users, ShoppingBag, Truck, Store, Loader2 } from "lucide-react";
+import { Leaf, ArrowLeft, Eye, EyeOff, Users, ShoppingBag, Truck, Store } from "lucide-react";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
-import { z } from "zod";
 
 const roleConfig = {
   customer: {
@@ -41,17 +39,11 @@ const roleConfig = {
 
 type RoleType = keyof typeof roleConfig;
 
-// Validation schemas
-const emailSchema = z.string().email("Please enter a valid email address");
-const passwordSchema = z.string().min(6, "Password must be at least 6 characters");
-const nameSchema = z.string().min(2, "Name must be at least 2 characters");
-
 const AuthPage = () => {
   const { role = "customer" } = useParams<{ role: string }>();
   const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -62,152 +54,14 @@ const AuthPage = () => {
   const currentRole = roleConfig[role as RoleType] || roleConfig.customer;
   const IconComponent = currentRole.icon;
 
-  // Check if user is already logged in
-  useEffect(() => {
-    const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        // Check user role and redirect
-        const { data: roleData } = await supabase
-          .from("user_roles")
-          .select("role, approval_status")
-          .eq("user_id", session.user.id)
-          .eq("approval_status", "approved")
-          .single();
-
-        if (roleData) {
-          navigate(`/dashboard/${roleData.role}`);
-        }
-      }
-    };
-    checkSession();
-  }, [navigate]);
-
-  const validateForm = (): boolean => {
-    try {
-      emailSchema.parse(formData.email);
-      passwordSchema.parse(formData.password);
-      
-      if (!isLogin) {
-        nameSchema.parse(formData.name);
-        if (formData.password !== formData.confirmPassword) {
-          toast.error("Passwords do not match!");
-          return false;
-        }
-      }
-      return true;
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        toast.error(error.errors[0].message);
-      }
-      return false;
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!validateForm()) return;
-    
-    setIsLoading(true);
-
-    try {
-      if (isLogin) {
-        // Sign in
-        const { error } = await supabase.auth.signInWithPassword({
-          email: formData.email,
-          password: formData.password,
-        });
-
-        if (error) {
-          if (error.message.includes("Invalid login credentials")) {
-            toast.error("Invalid email or password. Please try again.");
-          } else {
-            toast.error(error.message);
-          }
-          setIsLoading(false);
-          return;
-        }
-
-        // Check user role and redirect
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session) {
-          const { data: roleData } = await supabase
-            .from("user_roles")
-            .select("role, approval_status")
-            .eq("user_id", session.user.id)
-            .single();
-
-          if (roleData?.approval_status === "approved") {
-            toast.success("Logged in successfully!");
-            navigate(`/dashboard/${roleData.role}`);
-          } else if (roleData?.approval_status === "pending") {
-            toast.info("Your account is pending approval. Please wait for an admin to approve your account.");
-            await supabase.auth.signOut();
-          } else if (roleData?.approval_status === "rejected") {
-            toast.error("Your account has been rejected. Please contact support.");
-            await supabase.auth.signOut();
-          } else {
-            // No role found - this shouldn't happen but handle gracefully
-            toast.error("Account setup incomplete. Please contact support.");
-            await supabase.auth.signOut();
-          }
-        }
-      } else {
-        // Sign up
-        const redirectUrl = `${window.location.origin}/`;
-        
-        const { data, error } = await supabase.auth.signUp({
-          email: formData.email,
-          password: formData.password,
-          options: {
-            emailRedirectTo: redirectUrl,
-            data: {
-              full_name: formData.name,
-            },
-          },
-        });
-
-        if (error) {
-          if (error.message.includes("already registered")) {
-            toast.error("This email is already registered. Please sign in instead.");
-          } else {
-            toast.error(error.message);
-          }
-          setIsLoading(false);
-          return;
-        }
-
-        if (data.user) {
-          // Create user role record
-          const { error: roleError } = await supabase.from("user_roles").insert({
-            user_id: data.user.id,
-            role: role as RoleType,
-            approval_status: role === "customer" ? "approved" : "pending",
-          });
-
-          if (roleError) {
-            console.error("Error creating user role:", roleError);
-            toast.error("Account created but role assignment failed. Please contact support.");
-            setIsLoading(false);
-            return;
-          }
-
-          if (role === "customer") {
-            toast.success("Account created successfully! You can now log in.");
-            setIsLogin(true);
-          } else {
-            toast.success("Account created! Your account is pending approval by an admin.");
-            setIsLogin(true);
-          }
-        }
-      }
-    } catch (error) {
-      console.error("Authentication error:", error);
-      toast.error("An unexpected error occurred. Please try again.");
-    } finally {
-      setIsLoading(false);
+    if (!isLogin && formData.password !== formData.confirmPassword) {
+      toast.error("Passwords do not match!");
+      return;
     }
+    toast.success(isLogin ? "Logged in successfully!" : "Account created successfully!");
+    navigate(`/dashboard/${role}`);
   };
 
   return (
@@ -288,7 +142,6 @@ const AuthPage = () => {
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       required
                       className="h-12"
-                      disabled={isLoading}
                     />
                   </div>
                 )}
@@ -301,7 +154,6 @@ const AuthPage = () => {
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     required
                     className="h-12"
-                    disabled={isLoading}
                   />
                 </div>
                 <div className="space-y-2">
@@ -314,13 +166,11 @@ const AuthPage = () => {
                       onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                       required
                       className="h-12 pr-12"
-                      disabled={isLoading}
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                      disabled={isLoading}
                     >
                       {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
@@ -336,19 +186,11 @@ const AuthPage = () => {
                       onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                       required
                       className="h-12"
-                      disabled={isLoading}
                     />
                   </div>
                 )}
-                <Button variant="hero" size="lg" className="w-full mt-6" disabled={isLoading}>
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      {isLogin ? "Signing In..." : "Creating Account..."}
-                    </>
-                  ) : (
-                    isLogin ? "Sign In" : "Create Account"
-                  )}
+                <Button variant="hero" size="lg" className="w-full mt-6">
+                  {isLogin ? "Sign In" : "Create Account"}
                 </Button>
               </form>
 
@@ -358,7 +200,6 @@ const AuthPage = () => {
                   type="button"
                   onClick={() => setIsLogin(!isLogin)}
                   className="text-primary font-semibold hover:underline"
-                  disabled={isLoading}
                 >
                   {isLogin ? "Sign Up" : "Sign In"}
                 </button>

@@ -13,7 +13,6 @@ import DistributorDashboard from "./pages/dashboard/DistributorDashboard";
 import RetailerDashboard from "./pages/dashboard/RetailerDashboard";
 import CustomerDashboard from "./pages/dashboard/CustomerDashboard";
 import NotFound from "./pages/NotFound";
-import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -29,38 +28,10 @@ const App = () => (
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/auth/:role" element={<AuthPage />} />
-          <Route 
-            path="/dashboard/farmer/*" 
-            element={
-              <ProtectedRoute requiredRole="farmer">
-                <FarmerDashboard />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/dashboard/distributor/*" 
-            element={
-              <ProtectedRoute requiredRole="distributor">
-                <DistributorDashboard />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/dashboard/retailer/*" 
-            element={
-              <ProtectedRoute requiredRole="retailer">
-                <RetailerDashboard />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/dashboard/customer/*" 
-            element={
-              <ProtectedRoute requiredRole="customer">
-                <CustomerDashboard />
-              </ProtectedRoute>
-            } 
-          />
+          <Route path="/dashboard/farmer/*" element={<FarmerDashboard />} />
+          <Route path="/dashboard/distributor/*" element={<DistributorDashboard />} />
+          <Route path="/dashboard/retailer/*" element={<RetailerDashboard />} />
+          <Route path="/dashboard/customer/*" element={<CustomerDashboard />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
