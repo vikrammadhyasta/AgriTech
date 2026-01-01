@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: agritech-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: agritech
+  template:
+    metadata:
+      labels:
+        app: agritech
+    spec:
+      containers:
+      - name: agritech
+        image: <ECR_IMAGE_URL>:latest   # will update later
+        ports:
+        - containerPort: 80
