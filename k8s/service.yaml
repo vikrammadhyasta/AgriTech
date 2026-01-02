@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: agritech-frontend-service
+  name: agritech-service
 spec:
   selector:
-    app: agritech-frontend
+    app: agritech
   ports:
     - protocol: TCP
       port: 80
