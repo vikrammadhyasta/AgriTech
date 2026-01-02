@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: agritech
-        image: IMAGE_TAG_PLACEHOLDER
+        image: 270368607340.dkr.ecr.ap-south-1.amazonaws.com/agritech-frontend:11
         ports:
         - containerPort: 80
         imagePullPolicy: Always
