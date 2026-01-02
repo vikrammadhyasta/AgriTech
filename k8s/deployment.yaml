@@ -1,19 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: agritech-deployment
+  name: agritech-frontend
+  labels:
+    app: agritech-frontend
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: agritech
+      app: agritech-frontend
   template:
     metadata:
       labels:
-        app: agritech
+        app: agritech-frontend
     spec:
       containers:
-      - name: agritech
-        image: 270368607340.dkr.ecr.ap-south-1.amazonaws.com/agritech-frontend:10
+      - name: agritech-frontend
+        image: IMAGE_TAG_PLACEHOLDER
         ports:
         - containerPort: 80
+        imagePullPolicy: Always
