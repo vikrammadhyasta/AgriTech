@@ -14,6 +14,6 @@ spec:
     spec:
       containers:
       - name: agritech
-        image: <ECR_IMAGE_URL>:latest   # will update later
+        image: IMAGE_TAG_PLACEHOLDER
         ports:
         - containerPort: 80
