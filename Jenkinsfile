@@ -54,16 +54,18 @@ pipeline {
     stage('Commit & Push Changes') {
       steps {
         sh '''
-          git fetch origin main
-          git checkout -B main origin/main
+         git fetch origin main
+         git checkout -B main origin/main
 
-          git config user.email "jenkins@ci.com"
-          git config user.name "Jenkins CI"
+         git remote set-url origin git@github.com:vikrammadhyasta/AgriTech.git
 
-          git add k8s/deployment.yaml
-          git commit -m "Update image tag to ${IMAGE_TAG}" || echo "Nothing to commit"
+         git config user.email "jenkins@ci.com"
+         git config user.name "Jenkins CI"
 
-          git push origin main
+         git add k8s/deployment.yaml
+         git commit -m "Update image tag to ${IMAGE_TAG}" || echo "Nothing to commit"
+
+         git push origin main
         '''
       }
     }
