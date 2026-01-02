@@ -1,21 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: agritech-frontend
-  labels:
-    app: agritech-frontend
+  name: agritech-deployment
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: agritech-frontend
+      app: agritech
   template:
     metadata:
       labels:
-        app: agritech-frontend
+        app: agritech
     spec:
       containers:
-      - name: agritech-frontend
+      - name: agritech
         image: IMAGE_TAG_PLACEHOLDER
         ports:
         - containerPort: 80
