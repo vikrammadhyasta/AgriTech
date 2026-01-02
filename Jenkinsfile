@@ -1,67 +1,66 @@
 pipeline {
-    agent any
+  agent any
 
-    environment {
-        IMAGE_NAME = "agritech-frontend"
-        CONTAINER_NAME = "agritech-ui"
+  environment {
+    AWS_REGION = "ap-south-1"
+    ECR_URI = "270368607340.dkr.ecr.ap-south-1.amazonaws.com/agritech-frontend"
+    IMAGE_TAG = "${BUILD_NUMBER}"
+  }
+
+  stages {
+
+    stage('Checkout Code') {
+      steps {
+        checkout scm
+      }
     }
 
-    stages {
-
-        stage('Checkout Code') {
-            steps {
-                echo "Cloning code from GitHub"
-                checkout scm
-            }
-        }
-
-        stage('Install Dependencies') {
-            steps {
-                echo "Installing npm dependencies"
-                sh 'npm install'
-            }
-        }
-
-        stage('Build App') {
-            steps {
-                echo "Building frontend app"
-                sh 'npm run build'
-            }
-        }
-
-        stage('Build Docker Image') {
-            steps {
-                echo "Building Docker image"
-                sh 'docker build -t $IMAGE_NAME:latest .'
-            }
-        }
-
-        stage('Stop Old Container') {
-            steps {
-                echo "Stopping old container if exists"
-                sh '''
-                docker stop $CONTAINER_NAME || true
-                docker rm $CONTAINER_NAME || true
-                '''
-            }
-        }
-
-        stage('Run New Container') {
-            steps {
-                echo "Running new container"
-                sh '''
-                docker run -d -p 8080:4173 --name $CONTAINER_NAME $IMAGE_NAME:latest
-                '''
-            }
-        }
+    stage('Build Docker Image') {
+      steps {
+        sh '''
+          docker build -t agritech-frontend:${IMAGE_TAG} .
+        '''
+      }
     }
 
-    post {
-        success {
-            echo "✅ CI/CD Pipeline completed successfully"
+    stage('Login to ECR') {
+      steps {
+        withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'AgriTech-Aws']]) {
+          sh '''
+            aws ecr get-login-password --region $AWS_REGION \
+            | docker login --username AWS --password-stdin $ECR_URI
+          '''
         }
-        failure {
-            echo "❌ Pipeline failed"
-        }
+      }
     }
+
+    stage('Push Image to ECR') {
+      steps {
+        sh '''
+          docker tag agritech-frontend:${IMAGE_TAG} $ECR_URI:${IMAGE_TAG}
+          docker push $ECR_URI:${IMAGE_TAG}
+        '''
+      }
+    }
+
+    stage('Update Kubernetes Manifest') {
+      steps {
+        sh '''
+          sed -i "s|IMAGE_TAG_PLACEHOLDER|$ECR_URI:$IMAGE_TAG|g" k8s/deployment.yaml
+        '''
+      }
+    }
+
+    stage('Commit & Push Changes') {
+      steps {
+        sh '''
+          git config user.email "jenkins@ci.com"
+          git config user.name "Jenkins CI"
+          git add k8s/deployment.yaml
+          git commit -m "Update image tag to ${IMAGE_TAG}"
+          git push origin main
+        '''
+      }
+    }
+  }
 }
