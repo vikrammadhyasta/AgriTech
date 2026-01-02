@@ -54,8 +54,12 @@ pipeline {
     stage('Commit & Push Changes') {
       steps {
         sh '''
+          git checkout main
+          git pull origin main
+
           git config user.email "jenkins@ci.com"
           git config user.name "Jenkins CI"
+
           git add k8s/deployment.yaml
           git commit -m "Update image tag to ${IMAGE_TAG}"
           git push origin main
