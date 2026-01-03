@@ -16,6 +16,6 @@ spec:
       - name: ecr-secret
       containers:
       - name: agritech
-        image: 270368607340.dkr.ecr.ap-south-1.amazonaws.com/agritech-frontend:11
+        image: IMAGE_TAG_PLACEHOLDER
         ports:
         - containerPort: 80
