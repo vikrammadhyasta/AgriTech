@@ -46,6 +46,7 @@ pipeline {
     stage('Update Kubernetes Manifest') {
       steps {
         sh '''
+          git checkout -- k8s/deployment.yaml
           sed -i "s|IMAGE_TAG_PLACEHOLDER|$ECR_URI:$IMAGE_TAG|g" k8s/deployment.yaml
         '''
       }
@@ -54,18 +55,16 @@ pipeline {
     stage('Commit & Push Changes') {
       steps {
         sh '''
-         git fetch origin main
-         git checkout -B main origin/main
+          git fetch origin main
+          git checkout -B main origin/main
 
-         git remote set-url origin git@github.com:vikrammadhyasta/AgriTech.git
+          git config user.email "jenkins@ci.com"
+          git config user.name "Jenkins CI"
 
-         git config user.email "jenkins@ci.com"
-         git config user.name "Jenkins CI"
+          git add k8s/deployment.yaml
+          git commit -m "Update image tag to ${IMAGE_TAG}" || echo "Nothing to commit"
 
-         git add k8s/deployment.yaml
-         git commit -m "Update image tag to ${IMAGE_TAG}" || echo "Nothing to commit"
-
-         git push origin main
+          git push origin main
         '''
       }
     }
