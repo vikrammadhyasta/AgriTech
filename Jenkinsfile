@@ -3,8 +3,7 @@ pipeline {
 
   environment {
     AWS_REGION = "ap-south-1"
-    ECR_URI = "270368607340.dkr.ecr.ap-south-1.amazonaws.com/agritech-frontend"
-    IMAGE_TAG = "${BUILD_NUMBER}"
+    ECR_URI    = "270368607340.dkr.ecr.ap-south-1.amazonaws.com/agritech-frontend"
   }
 
   stages {
@@ -18,7 +17,7 @@ pipeline {
     stage('Build Docker Image') {
       steps {
         sh '''
-          docker build -t agritech-frontend:${IMAGE_TAG} .
+          docker build -t agritech-frontend:latest .
         '''
       }
     }
@@ -37,36 +36,16 @@ pipeline {
     stage('Push Image to ECR') {
       steps {
         sh '''
-          docker tag agritech-frontend:${IMAGE_TAG} $ECR_URI:${IMAGE_TAG}
-          docker push $ECR_URI:${IMAGE_TAG}
+          docker tag agritech-frontend:latest $ECR_URI:latest
+          docker push $ECR_URI:latest
         '''
       }
     }
+  }
 
-    stage('Update Kubernetes Manifest') {
-      steps {
-        sh '''
-          git checkout -- k8s/deployment.yaml
-          sed -i "s|IMAGE_TAG_PLACEHOLDER|$ECR_URI:$IMAGE_TAG|g" k8s/deployment.yaml
-        '''
-      }
-    }
-
-    stage('Commit & Push Changes') {
-      steps {
-        sh '''
-          git fetch origin main
-          git checkout -B main origin/main
-
-         git config user.email "jenkins@ci.com"
-         git config user.name "Jenkins CI"
-
-         git add k8s/deployment.yaml
-         git commit -m "Update image tag to ${IMAGE_TAG}" || echo "Nothing to commit"
-
-         git push origin main
-        '''
-      }
+  post {
+    success {
+      echo "✅ Image pushed to ECR successfully. ArgoCD will deploy automatically."
     }
   }
 }
