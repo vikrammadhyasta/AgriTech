@@ -13,9 +13,9 @@ spec:
         app: agritech
     spec:
       imagePullSecrets:
-      - name: ecr-secret
+        - name: ecr-secret   # 🔥 THIS LINE IS MANDATORY
       containers:
-      - name: agritech
-        image: 270368607340.dkr.ecr.ap-south-1.amazonaws.com/agritech-frontend:13
-        ports:
-        - containerPort: 80
+        - name: agritech
+          image: IMAGE_TAG_PLACEHOLDER
+          ports:
+            - containerPort: 80
