@@ -2,8 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: agritech-deployment
-  labels:
-    app: agritech
 spec:
   replicas: 1
   selector:
@@ -13,16 +11,12 @@ spec:
     metadata:
       labels:
         app: agritech
-      annotations:
-        argocd-image-updater.argoproj.io/image-list: agritech=270368607340.dkr.ecr.ap-south-1.amazonaws.com/agritech-frontend
-        argocd-image-updater.argoproj.io/agritech.update-strategy: latest
-        argocd-image-updater.argoproj.io/agritech.allow-tags: regexp:^latest$
-        argocd-image-updater.argoproj.io/agritech.pull-secret: ecr-credentials
     spec:
       imagePullSecrets:
-        - name: ecr-credentials
+        - name: ecr-secret
       containers:
         - name: agritech
-          image: 270368607340.dkr.ecr.ap-south-1.amazonaws.com/agritech-frontend:latest
+          image: 270368607340.dkr.ecr.ap-south-1.amazonaws.com/agritech-frontend:20
+          imagePullPolicy: Always
           ports:
             - containerPort: 80
