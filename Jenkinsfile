@@ -9,13 +9,13 @@ pipeline {
 
   stages {
 
-    stage('Checkout Code') {
+    stage('Checkout') {
       steps {
         checkout scm
       }
     }
 
-    stage('Build Docker Image') {
+    stage('Build Image') {
       steps {
         sh '''
           docker build -t agritech-frontend:${IMAGE_TAG} .
@@ -28,17 +28,19 @@ pipeline {
         withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'AgriTech-Aws']]) {
           sh '''
             aws ecr get-login-password --region $AWS_REGION \
-            | docker login --username AWS --password-stdin 270368607340.dkr.ecr.ap-south-1.amazonaws.com
+            | docker login --username AWS --password-stdin $ECR_URI
           '''
         }
       }
     }
 
-    stage('Push Image to ECR') {
+    stage('Push Image') {
       steps {
         sh '''
           docker tag agritech-frontend:${IMAGE_TAG} $ECR_URI:${IMAGE_TAG}
+          docker tag agritech-frontend:${IMAGE_TAG} $ECR_URI:latest
           docker push $ECR_URI:${IMAGE_TAG}
+          docker push $ECR_URI:latest
         '''
       }
     }
