@@ -19,6 +19,8 @@ spec:
         argocd-image-updater.argoproj.io/agritech.allow-tags: regexp:^latest$
         argocd-image-updater.argoproj.io/agritech.pull-secret: ecr-credentials
     spec:
+      imagePullSecrets:
+        - name: ecr-credentials
       containers:
         - name: agritech
           image: 270368607340.dkr.ecr.ap-south-1.amazonaws.com/agritech-frontend:latest
