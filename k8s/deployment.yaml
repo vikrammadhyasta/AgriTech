@@ -12,6 +12,8 @@ spec:
       labels:
         app: agritech
     spec:
+      imagePullSecrets:
+      - name: ecr-secret
       containers:
       - name: agritech
         image: 270368607340.dkr.ecr.ap-south-1.amazonaws.com/agritech-frontend:latest
