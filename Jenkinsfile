@@ -54,7 +54,7 @@ pipeline {
         echo "AI FAILURE ANALYZER STARTED"
         echo "=============================="
 
-        cp /var/jenkins_home/jobs/${JOB_NAME}/builds/${BUILD_NUMBER}/log /tmp/jenkins.log
+        cp /var/lib/jenkins/jobs/${JOB_NAME}/builds/${BUILD_NUMBER}/log /tmp/jenkins.log
 
         OPENAI_API_KEY=$OPENAI_API_KEY python3 /home/ubuntu/jenkins-ai/analyze_logs.py /tmp/jenkins.log
 
