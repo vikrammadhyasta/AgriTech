@@ -56,7 +56,7 @@ pipeline {
 
         cp /var/lib/jenkins/jobs/${JOB_NAME}/builds/${BUILD_NUMBER}/log /tmp/jenkins.log
 
-        OPENAI_API_KEY=$OPENAI_API_KEY python3 /home/vikram/jenkins-ai/venv/bin/python /home/vikram/jenkins-ai/analyze_logs.py /tmp/jenkins.log
+        OPENAI_API_KEY=$OPENAI_API_KEY /home/vikram/jenkins-ai/venv/bin/python /home/vikram/jenkins-ai/analyze_logs.py /tmp/jenkins.log
 
         echo "=============================="
         echo "AI FAILURE ANALYSIS COMPLETE"
