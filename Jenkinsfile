@@ -47,7 +47,7 @@ pipeline {
   }
    post {
     failure {
-      withCredentials([string(credentialsId: 'openai-api-key', variable: 'OPENAI_API_KEY')]) {
+      withCredentials([string(credentialsId: 'openai-api-key', variable: 'AgriTech-Gpt-key')]) {
         sh '''
         echo "=============================="
         echo "AI FAILURE ANALYZER STARTED"
