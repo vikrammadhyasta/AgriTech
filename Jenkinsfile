@@ -45,4 +45,25 @@ pipeline {
       }
     }
   }
+   post {
+    failure {
+      withCredentials([string(credentialsId: 'openai-api-key', variable: 'OPENAI_API_KEY')]) {
+        sh '''
+        echo "=============================="
+        echo "AI FAILURE ANALYZER STARTED"
+        echo "=============================="
+
+        # Fetch Jenkins job logs
+        curl http://localhost:8080/job/${JOB_NAME}/${BUILD_NUMBER}/consoleText > /tmp/jenkins.log
+
+        # Run AI analysis
+        OPENAI_API_KEY=$OPENAI_API_KEY python3 /home/ubuntu/jenkins-ai/analyze_logs.py /tmp/jenkins.log
+
+        echo "=============================="
+        echo "AI FAILURE ANALYSIS COMPLETE"
+        echo "=============================="
+        '''
+      }
+    }
+  }
 }
